@@ -9,12 +9,21 @@ std::ostream& operator<<(std::ostream& os, const vector<double>& vec){
     os << vec[i] << ", ";
   }
   os << "]";
+  return os;
 }
 
 vector<double> operator-(const vector<double>& vec){
   vector<double> ret(vec.size());
   for(int i=0; i<vec.size(); ++i){
     ret[i] = -vec[i];
+  }
+  return ret;
+}
+
+vector<double> operator-(const vector<double>& vec1, const vector<double>& vec2){
+  vector<double> ret(vec1.size());
+  for(int i=0; i<vec1.size(); ++i){
+    ret[i] = vec1[i] - vec2[i];
   }
   return ret;
 }
@@ -32,6 +41,13 @@ vector<double> operator*(double coef, const vector<double>& vec){
   return vec * coef;
 }
 
+vector<double> operator*(const vector<double>& vec1, const vector<double>& vec2){
+  vector<double> ret(vec1.size());
+  for(int i=0; i<vec1.size(); ++i){
+    ret[i] = vec1[i] * vec2[i];
+  }
+  return ret;
+}
 
 vector<double> operator+(const vector<double>& v1, const vector<double>& v2)
 {

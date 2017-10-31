@@ -1,7 +1,6 @@
 #include<iostream>
 #include<vector>
 #include"optimizer.h"
-#include"utils.h"
 
 using namespace std;
 
@@ -12,13 +11,14 @@ double Rosenbrock(vector<double> arr){
 }
 
 int main(){
-  FuncWrapper fw(Rosenbrock, 2);
+  FunctionWrapper fw(Rosenbrock, 2);
   vector<double> point = {1, 2};
 
   cout << fw.valueAt(point) << endl;
   cout << fw.gradientAt(point) << endl;
 
-  //SteepDescent opt(fw);
-  ConjugateGradient opt(fw);
-  auto results = opt.optimize(point);
+  //Optimizer::SteepDescent opt(fw);
+  //FuncOptimizer::ConjugateGradient opt(fw);
+  //FuncOptimizer::LBFGS opt(fw);
+  //auto results = opt.optimize(point);
 }

@@ -11,9 +11,10 @@ using std::cout;
 using std::endl;
 using std::vector;
 
-class FuncWrapper{
+class FunctionWrapper{
   public:
-    FuncWrapper(std::function<double(vector<double>)> _f, int _d): func(_f), dim(_d) {}
+    FunctionWrapper(std::function<double(vector<double>)> _f, int _d): func(_f), dim(_d) {}
+    virtual ~FunctionWrapper() {};
     double valueAt(const vector<double>& point);
     vector<double> gradientAt(const vector<double>& point);
     void hess() {};

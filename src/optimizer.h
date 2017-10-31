@@ -6,54 +6,78 @@
 #include<functional>
 #include<cmath>
 #include<algorithm>
-#include"funcwrapper.h"
+#include"functionwrapper.h"
 #include"utils.h"
 
-class Optimizer{
-  public:
-    Optimizer(FuncWrapper _fw): func_wrapper(_fw) {};
-    ~Optimizer() {};
 
-    //virtual void optimize() = 0;
-    virtual double line_search(
-        const vector<double> &start_point, const vector<double> &direc,
-        vector<double>& end_point, const int max_iter=10000);
+using IterationPoint = vector<double>;
+using Gradient = vector<double>;
+using SearchDirection = vector<double>;
 
-  private:
-    FuncWrapper func_wrapper;
-};
 
-class SteepDescent: public Optimizer {
-  public:
-    SteepDescent(FuncWrapper _fw): Optimizer(_fw), func_wrapper(_fw) {};
-    ~SteepDescent() {};
-    virtual vector<vector<double>> optimize(
-        const vector<double>& start_point, const double threshold=0.001,
-        const int max_iter=10000, const bool verbose=false);
-  private:
-    FuncWrapper func_wrapper;
-};
+namespace DirectionUpdate {
+  // steep descent update search direction
+  SearchDirection sd_update(const Gradient &new_gradient);
 
-class ConjugateGradient: public Optimizer {
-  public:
-    ConjugateGradient(FuncWrapper _fw): Optimizer(_fw), func_wrapper(_fw) {};
-    ~ConjugateGradient() {}
-    virtual vector<vector<double>> optimize(
-        const vector<double>& start_point, const double threshold=0.001,
-        const int max_iter=10000, const bool verbose=false);
-  private:
-    FuncWrapper func_wrapper;
-};
+  // conjugate update search direction in one iteration
+  SearchDirection cg_update(const Gradient &last_gradient, const SearchDirection &last_direction,
+                            const Gradient &new_gradient);
 
-class LBGFS: public Optimizer {
-  public:
-    LBFGS(FuncWrapper _fw): Optimizer(_fw), func_wrapper(_fw) {};
-    ~LBFGS() {}
-    virtual vector<vector<double>> optimize(
-        const vector<double>& start_point, const double threshold=0.001,
-        const int max_iter=10000, const bool verbose=false);
-  private:
-    FuncWrapper func_wrapper;
+  // L-BFGS update search direction
+  SearchDirection lbfgs_update(const vector<IterationPoint> &sks, const vector<Gradient> &yks,
+                               const Gradient &new_gradient);
 }
+
+namespace FuncOptimizer {
+  /*
+  * Test calss for update methods
+  */
+  class FunctionOptimizer {
+  public:
+    FunctionOptimizer(FunctionWrapper _fw) : func_wrapper(_fw) {};
+
+    virtual ~FunctionOptimizer() {}
+
+    virtual double line_search(
+        const IterationPoint &start_point, const SearchDirection &direc,
+        IterationPoint &end_point, const int max_iter = 10000);
+
+  protected:
+    FunctionWrapper func_wrapper;
+  };
+
+  class SteepDescent : public FunctionOptimizer {
+  public:
+    SteepDescent(FunctionWrapper _fw) : FunctionOptimizer(_fw) {};
+
+    virtual ~SteepDescent() {};
+
+    virtual vector<IterationPoint> optimize (
+        const IterationPoint &start_point, const double threshold = 0.001,
+        const int max_iter = 10000, const bool verbose = false);
+  };
+
+  class ConjugateGradient : public FunctionOptimizer {
+  public:
+    ConjugateGradient(FunctionWrapper _fw) : FunctionOptimizer(_fw) {};
+
+    virtual ~ConjugateGradient() {}
+
+    virtual vector<IterationPoint> optimize (
+        const IterationPoint &start_point, const double threshold = 0.001,
+        const int max_iter = 10000, const bool verbose = false);
+  };
+
+  class LBFGS : public FunctionOptimizer {
+  public:
+    LBFGS(FunctionWrapper _fw) : FunctionOptimizer(_fw) {};
+
+    virtual ~LBFGS() {};
+
+    virtual vector<IterationPoint> optimize (
+        const IterationPoint &start_point, const double threshold = 0.001,
+        const int max_iter = 20, const bool verbose = false, const int memory=10);
+  };
+} // end namespace
 
 #endif
