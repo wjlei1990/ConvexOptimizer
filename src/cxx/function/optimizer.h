@@ -6,32 +6,21 @@
 #include<functional>
 #include<cmath>
 #include<algorithm>
-#include"functionwrapper.h"
-#include"utils.h"
+#include <boost/mpi.hpp>
+#include "vec_utils.hpp"
+#include "functionwrapper.h"
+#include "direcUpdate.h"
 
-
-using IterationPoint = vector<double>;
-using Gradient = vector<double>;
-using SearchDirection = vector<double>;
-
-
-namespace DirectionUpdate {
-  // steep descent update search direction
-  SearchDirection sd_update(const Gradient &new_gradient);
-
-  // conjugate update search direction in one iteration
-  SearchDirection cg_update(const Gradient &last_gradient, const SearchDirection &last_direction,
-                            const Gradient &new_gradient);
-
-  // L-BFGS update search direction
-  SearchDirection lbfgs_update(const vector<IterationPoint> &sks, const vector<Gradient> &yks,
-                               const Gradient &new_gradient);
-}
+namespace mpi = boost::mpi;
 
 namespace FuncOptimizer {
   /*
   * Test calss for update methods
   */
+  using IterationPoint = DirectionUpdate::IterationPoint;
+  using Gradient = DirectionUpdate::Gradient;
+  using SearchDirection = DirectionUpdate::SearchDirection;
+
   class FunctionOptimizer {
   public:
     FunctionOptimizer(FunctionWrapper _fw) : func_wrapper(_fw) {};

@@ -1,4 +1,4 @@
-# Prerequisites
+#ke-build-debug/ Prerequisites
 *.d
 
 # Compiled Object files
@@ -34,3 +34,5 @@
 *.pyc
 
 .idea/
+cmake-build-debug/
+build/
