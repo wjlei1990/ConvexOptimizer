@@ -12,6 +12,7 @@
 namespace mpi = boost::mpi;
 
 namespace DirectionUpdate {
+
   using IterationPoint = vector<double>;
   using Gradient = vector<double>;
   using SearchDirection = vector<double>;

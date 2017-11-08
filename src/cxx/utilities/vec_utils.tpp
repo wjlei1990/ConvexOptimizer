@@ -63,16 +63,16 @@ vector<T> operator+(const vector<T>& v1, const vector<T>& v2)
 }
 
 template <class T>
-T norm(const vector<T>& vec, const int order){
-  T vsum = 0;
+double norm(const vector<T>& vec, const int order){
+  double vsum = 0;
   for(auto &v: vec){
-    vsum += pow(v, order);
+    vsum += pow(abs(v), order);
   }
   return pow(vsum, 1.0/order);
 }
 
-template <class T>
-void scale(vector<T>& vec, T coef){
+template <class T1, class T2>
+void scale(vector<T1>& vec, T2 coef){
   for(auto& v: vec){
     v *= coef;
   }
