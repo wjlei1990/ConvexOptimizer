@@ -37,7 +37,7 @@ vector<T2> operator*(T1 coef, const vector<T2>& vec);
 template<class T>
 double norm(const vector<T>& vec, const int order=2);
 
-template<class T1, class T2>
+template<typename T1, typename T2>
 void scale(vector<T1>& vec, T2 coef);
 
 template<class T>
@@ -46,5 +46,10 @@ T dot(const vector<T>&, const vector<T>&);
 template<class T>
 T dot(const vector<T>& v1, const vector<T>& v2, const mpi::communicator& world);
 
-#include "vec_utils.tpp"
+#include "vec_utils.inl"
 #endif
+
+
+//
+
+

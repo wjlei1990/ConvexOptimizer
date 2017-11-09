@@ -17,56 +17,88 @@ namespace FuncOptimizer {
   /*
   * Test calss for update methods
   */
-  using IterationPoint = DirectionUpdate::IterationPoint;
-  using Gradient = DirectionUpdate::Gradient;
-  using SearchDirection = DirectionUpdate::SearchDirection;
+  template<typename T>
+  using IterationPoint = DirectionUpdate::IterationPoint<T>;
 
+  template<typename T>
+  using Gradient = DirectionUpdate::Gradient<T>;
+
+  template<typename T>
+  using SearchDirection = DirectionUpdate::SearchDirection<T>;
+
+  // result struct to store the optimization path
+  template<typename T>
+  struct OptimResult {
+    OptimResult() {}
+    ~OptimResult() {}
+    IterationPoint<T> min_point() { return path.back(); }
+    int num_iterations() { return path.size(); }
+
+    vector<IterationPoint<T>> path;
+    bool converged;
+  };
+
+  template<typename T>
   class FunctionOptimizer {
   public:
-    FunctionOptimizer(FunctionWrapper _fw) : func_wrapper(_fw) {};
+    FunctionOptimizer(FunctionWrapper<T> _fw) : func_wrapper(_fw) {};
 
     virtual ~FunctionOptimizer() {}
 
-    virtual double line_search(
-        const IterationPoint &start_point, const SearchDirection &direc,
-        IterationPoint &end_point, const int max_iter = 10000);
+    virtual T line_search(
+        const IterationPoint<T>& start_point, const SearchDirection<T>& direc,
+        IterationPoint<T>& end_point, const int max_iter = 10000);
 
   protected:
-    FunctionWrapper func_wrapper;
+    FunctionWrapper<T> func_wrapper;
   };
 
-  class SteepDescent : public FunctionOptimizer {
+  template<typename T>
+  class SteepDescent : public FunctionOptimizer<T> {
   public:
-    SteepDescent(FunctionWrapper _fw) : FunctionOptimizer(_fw) {};
+    using FunctionOptimizer<T>::func_wrapper;
+    using FunctionOptimizer<T>::line_search;
+
+    SteepDescent(FunctionWrapper<T> _fw) : FunctionOptimizer<T>(_fw) {};
 
     virtual ~SteepDescent() {};
 
-    virtual vector<IterationPoint> optimize (
-        const IterationPoint &start_point, const double threshold = 0.001,
+    virtual OptimResult<T> optimize (
+        const IterationPoint<T> start_point, const double threshold = 0.001,
         const int max_iter = 10000, const bool verbose = false);
   };
 
-  class ConjugateGradient : public FunctionOptimizer {
+  template<typename T>
+  class ConjugateGradient : public FunctionOptimizer<T> {
   public:
-    ConjugateGradient(FunctionWrapper _fw) : FunctionOptimizer(_fw) {};
+    using FunctionOptimizer<T>::func_wrapper;
+    using FunctionOptimizer<T>::line_search;
+
+    ConjugateGradient(FunctionWrapper<T> _fw) : FunctionOptimizer<T>(_fw) {};
 
     virtual ~ConjugateGradient() {}
 
-    virtual vector<IterationPoint> optimize (
-        const IterationPoint &start_point, const double threshold = 0.001,
+    virtual OptimResult<T> optimize (
+        const IterationPoint<T> start_point, const double threshold = 0.001,
         const int max_iter = 10000, const bool verbose = false);
   };
 
-  class LBFGS : public FunctionOptimizer {
+  template<typename T>
+  class LBFGS : public FunctionOptimizer<T> {
   public:
-    LBFGS(FunctionWrapper _fw) : FunctionOptimizer(_fw) {};
+    using FunctionOptimizer<T>::func_wrapper;
+    using FunctionOptimizer<T>::line_search;
+
+    LBFGS(FunctionWrapper<T> _fw) : FunctionOptimizer<T>(_fw) {};
 
     virtual ~LBFGS() {};
 
-    virtual vector<IterationPoint> optimize (
-        const IterationPoint &start_point, const double threshold = 0.001,
-        const int max_iter = 20, const bool verbose = false, const int memory=10);
+    virtual OptimResult<T> optimize (
+        const IterationPoint<T> start_point, const double threshold = 0.001,
+        const int max_iter = 10000, const bool verbose = false, const int memory=10);
   };
 } // end namespace
+
+#include "optimizer.inl"
 
 #endif

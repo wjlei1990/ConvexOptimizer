@@ -25,7 +25,7 @@ double Rosenbrock(vector<double> arr){
 }
 
 int main(){
-  FunctionWrapper fw(Rosenbrock, 3);
+  FunctionWrapper<double> fw(Rosenbrock, 3);
   vector<double> point = {2, 2, 2};
 
   cout << fw.valueAt(point) << endl;
@@ -33,6 +33,7 @@ int main(){
 
   //FuncOptimizer::SteepDescent opt(fw);
   //FuncOptimizer::ConjugateGradient opt(fw);
-  FuncOptimizer::LBFGS opt(fw);
+  FuncOptimizer::LBFGS<double> opt(fw);
   auto results = opt.optimize(point);
 }
+

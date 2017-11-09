@@ -11,18 +11,21 @@ using std::cout;
 using std::endl;
 using std::vector;
 
+template<typename T>
 class FunctionWrapper{
   public:
-    FunctionWrapper(std::function<double(vector<double>)> _f, int _d): func(_f), dim(_d) {}
+    FunctionWrapper(std::function<T(vector<T>)> _f, int _d): func(_f), dim(_d) {}
     virtual ~FunctionWrapper() {};
-    double valueAt(const vector<double>& point);
-    vector<double> gradientAt(const vector<double>& point);
+    T valueAt(const vector<T>& point);
+    vector<T> gradientAt(const vector<T>& point);
     void hess() {};
   private:
-    double finite_diff_grad(const vector<double> &point, int idim, double dx);
+    T finite_diff_grad(const vector<T> &point, int idim, T dx);
 
-    std::function<double(vector<double>)> func;
+    std::function<T(vector<T>)> func;
     int dim;
 };
+
+#include "functionwrapper.inl"
 
 #endif

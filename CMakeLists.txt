@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(test_dot)
+project(ConvexOptimizer)
 
 set(CMAKE_CXX_STANDARD 11)
 
@@ -15,10 +15,7 @@ include_directories(src/cxx/utilities)
 
 # make
 set(SOURCE_FILES
-        src/cxx/main.cpp
-        src/cxx/direction/direcUpdate.cpp
-        src/cxx/function/functionwrapper.cpp
-        src/cxx/function/optimizer.cpp)
+        src/cxx/main.cpp)
 
 add_executable(ConvexOptimizer ${SOURCE_FILES})
 target_link_libraries(ConvexOptimizer
@@ -40,11 +37,9 @@ target_link_libraries(test_dot
 target_link_libraries(test_dot ${gtest_lib_dir}/libgtest.a ${gtest_lib_dir}/libgtest_main.a)
 
 set(SOURCE_FILES_3
-        src/cxx/testing/test_mpi_direcUpdate.cpp
-        src/cxx/direction/direcUpdate.cpp)
+        src/cxx/testing/test_mpi_direcUpdate.cpp)
 add_executable(test_mpi ${SOURCE_FILES_3})
 target_link_libraries(test_mpi
         ${MPI_CXX_LIBRARIES}
         ${Boost_LIBRARIES})
 target_link_libraries(test_mpi ${gtest_lib_dir}/libgtest.a ${gtest_lib_dir}/libgtest_main.a)
-

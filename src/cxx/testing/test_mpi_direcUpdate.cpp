@@ -59,8 +59,8 @@ TEST(DirectionUpdate, SD_MPI) {
   vector<double> local_new_grad = DirectionUpdate::sd_update(local_grad, world);
 
   vector<double> true_local_new_grad(new_grad.begin() + start, new_grad.begin() + end);
-  ASSERT_DOUBLE_EQ(norm(local_new_grad - true_local_new_grad), 0);
 
+  ASSERT_DOUBLE_EQ(norm(local_new_grad - true_local_new_grad), 0.0);
   world.barrier();
 }
 

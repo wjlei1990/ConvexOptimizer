@@ -29,26 +29,45 @@ TEST(RosenBrock, Test) {
   ASSERT_DOUBLE_EQ(Rosenbrock(vector<double>{1, 1, 1, 1, 1, 1}), 0);
 }
 
+TEST(Optimize, SteepDescent_NC) {
+  FunctionWrapper<double> fw(Rosenbrock, 3);
+  vector<double> point = {2, 2, 2};
+  FuncOptimizer::SteepDescent<double> opt(fw);
+  auto results = opt.optimize(point, 0.001, 10000, false);
+  ASSERT_FALSE(results.converged);
+}
+
 TEST(Optimize, SteepDescent){
-  FunctionWrapper fw(Rosenbrock, 3);
+  FunctionWrapper<double> fw(Rosenbrock, 2);
+  vector<double> point = {2, 2};
+  FuncOptimizer::SteepDescent<double> opt(fw);
+  auto result = opt.optimize(point, 0.001, 10000, false);
+  ASSERT_TRUE(result.converged);
+}
+
+TEST(Optimize, ConjugateGradient_NC){
+  FunctionWrapper<double> fw(Rosenbrock, 3);
   vector<double> point = {2, 2, 2};
 
-  FuncOptimizer::SteepDescent opt(fw);
-  auto results = opt.optimize(point);
+  FuncOptimizer::SteepDescent<double> opt(fw);
+  auto results = opt.optimize(point, 0.001, 10000, false);
+  ASSERT_FALSE(results.converged);
 }
 
 TEST(Optimize, ConjugateGradient){
-  FunctionWrapper fw(Rosenbrock, 3);
-  vector<double> point = {2, 2, 2};
+  FunctionWrapper<double> fw(Rosenbrock, 2);
+  vector<double> point = {2, 2};
 
-  FuncOptimizer::SteepDescent opt(fw);
-  auto results = opt.optimize(point);
+  FuncOptimizer::SteepDescent<double> opt(fw);
+  auto results = opt.optimize(point, 0.001, 10000, false);
+  ASSERT_TRUE(results.converged);
 }
 
 TEST(Optimize, LBFGS){
-  FunctionWrapper fw(Rosenbrock, 3);
+  FunctionWrapper<double> fw(Rosenbrock, 3);
   vector<double> point = {2, 2, 2};
 
-  FuncOptimizer::LBFGS opt(fw);
-  auto results = opt.optimize(point);
+  FuncOptimizer::LBFGS<double> opt(fw);
+  auto results = opt.optimize(point, 0.001, 20, false, 10);
+  ASSERT_TRUE(results.converged);
 }

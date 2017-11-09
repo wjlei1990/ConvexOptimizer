@@ -1,20 +1,22 @@
 #include"optimizer.h"
+#define FLOAT_TYPE double
 
 namespace FuncOptimizer {
 
-  double FunctionOptimizer::line_search(
-      const IterationPoint &start_point, const SearchDirection &direc,
-      IterationPoint &end_point, const int max_iter) {
+  template<typename T>
+  T FunctionOptimizer<T>::line_search(
+      const IterationPoint<T>& start_point, const SearchDirection<T>& direc,
+      IterationPoint<T>& end_point, const int max_iter) {
     double v0 = func_wrapper.valueAt(start_point);
     bool find = false;
     int niter = 0;
     double dalpha = 0.0001;
 
-    SearchDirection incre = direc * dalpha;
-    IterationPoint p0(start_point), p1(end_point.size());
+    SearchDirection<T> incre = direc * dalpha;
+    IterationPoint<T> p0(start_point), p1(end_point.size());
     while (niter < max_iter) {
       //cout << "line search iter: " << niter << endl;
-      SearchDirection p1 = p0 + incre;
+      SearchDirection<T> p1 = p0 + incre;
       //cout << p1 << endl;
       double v1 = func_wrapper.valueAt(p1);
       //cout << "v0 and v1: " << v0 << ", " << v1 << endl;
@@ -33,14 +35,16 @@ namespace FuncOptimizer {
     return alpha;
   }
 
-  vector<IterationPoint> SteepDescent::optimize(
-      const IterationPoint &start_point, const double threshold,
+  template<typename T>
+  OptimResult<T> SteepDescent<T>::optimize(
+      const IterationPoint<T> start_point, const double threshold,
       const int max_iter, const bool verbose) {
-    IterationPoint x0(start_point.begin(), start_point.end());
-    SearchDirection g0;
-    IterationPoint x1(start_point.size());
-    vector<IterationPoint> paths;
+    IterationPoint<T> x0(start_point.begin(), start_point.end());
+    SearchDirection<T> g0;
+    IterationPoint<T> x1(start_point.size());
+    vector<IterationPoint<T>> paths;
 
+    OptimResult<T> result;
     int niter = 0;
     bool converged = false;
     while (!converged && niter < max_iter) {
@@ -50,10 +54,10 @@ namespace FuncOptimizer {
         converged = true;
         break;
       }
-      SearchDirection p0 = DirectionUpdate::sd_update(g0);
+      SearchDirection<T> p0 = DirectionUpdate::sd_update(g0);
 
-      cout << "============> " << niter << endl;
-      cout << "x0:" << x0 << "| v0:" << func_wrapper.valueAt(x0) << endl;
+      //cout << "============> " << niter << endl;
+      //cout << "x0:" << x0 << "| v0:" << func_wrapper.valueAt(x0) << endl;
       double alpha = line_search(x0, p0, x1);
       double v1 = func_wrapper.valueAt(x1);
       //cout << "alpha: " << alpha << endl;
@@ -63,20 +67,24 @@ namespace FuncOptimizer {
       ++niter;
     }
 
-    return paths;
+    result.converged = converged;
+    result.path = paths;
+    return result;
   }
 
-  vector<IterationPoint> ConjugateGradient::optimize(
-      const IterationPoint &start_point, const double threshold,
+  template<typename T>
+  OptimResult<T> ConjugateGradient<T>::optimize(
+      const IterationPoint<T> start_point, const double threshold,
       const int max_iter, const bool verbose) {
-    IterationPoint x0(start_point.begin(), start_point.end());
-    SearchDirection g0 = func_wrapper.gradientAt(x0);
-    IterationPoint x1(start_point.size());
-    SearchDirection g1(start_point.size());
+    IterationPoint<T> x0(start_point.begin(), start_point.end());
+    SearchDirection<T> g0 = func_wrapper.gradientAt(x0);
+    IterationPoint<T> x1(start_point.size());
+    SearchDirection<T> g1(start_point.size());
     // search direction
-    SearchDirection p = -g0;
-    vector<IterationPoint> paths;
+    SearchDirection<T> p = -g0;
+    vector<IterationPoint<T>> paths;
 
+    OptimResult<T> result;
     int niter = 0;
     bool converged = false;
     bool restart;
@@ -99,35 +107,38 @@ namespace FuncOptimizer {
         p = DirectionUpdate::cg_update(g0, p, g1);
       }
 
-      cout << "[" << niter << "] x: " << x0 << " | v: " << func_wrapper.valueAt(x0)
-           << " | norm: " << norm(g1) << " | orth: " << orth << " | restart: " << restart << endl;
+      //cout << "[" << niter << "] x: " << x0 << " | v: " << func_wrapper.valueAt(x0)
+      //     << " | norm: " << norm(g1) << " | orth: " << orth << " | restart: " << restart << endl;
 
       g0 = g1;
       x0 = x1;
       ++niter;
     }
 
-    return paths;
+    result.converged = converged;
+    result.path = paths;
+    return result;
   }
 
-
-  vector<IterationPoint> LBFGS::optimize(
-      const IterationPoint &start_point, const double threshold,
+  template<typename T>
+  OptimResult<T> LBFGS<T>::optimize(
+      const IterationPoint<T> start_point, const double threshold,
       const int max_iter, const bool verbose, int memory)
   {
-    IterationPoint x0 = start_point;
-    Gradient g0 = func_wrapper.gradientAt(x0);
-    IterationPoint x1(start_point.size());
-    Gradient g1(start_point.size());
-    vector<IterationPoint> paths;
+    IterationPoint<T> x0 = start_point;
+    Gradient<T> g0 = func_wrapper.gradientAt(x0);
+    IterationPoint<T> x1(start_point.size());
+    Gradient<T> g1(start_point.size());
+    vector<IterationPoint<T>> paths;
 
+    OptimResult<T> result;
     int niter = 0;
     bool converged = false;
-    SearchDirection p;
-    vector<IterationPoint> sks;
-    vector<Gradient > yks;
+    SearchDirection<T> p;
+    vector<IterationPoint<T>> sks;
+    vector<Gradient<T>> yks;
     while(!converged && niter < max_iter){
-      cout << "========================>\n [" << niter << "]" << endl;
+      //cout << "========================>\n [" << niter << "]" << endl;
       paths.push_back(x0);
       if(norm(g0, 2) < threshold){
         converged = true;
@@ -142,11 +153,11 @@ namespace FuncOptimizer {
 
       double alpha = line_search(x0, p, x1);
 
-      cout << "---> summary:" << endl;
-      cout << "x0: " << x0 << " | v0: " << func_wrapper.valueAt(x0) << endl;
-      cout << "x1: " << x1 << " | v1: " << func_wrapper.valueAt(x1) << endl;
-      cout << "diff norm" << norm(x1 - x0) << endl;
-      cout << "norm:" << norm(g0) << endl;
+      //cout << "---> summary:" << endl;
+      //cout << "x0: " << x0 << " | v0: " << func_wrapper.valueAt(x0) << endl;
+      //cout << "x1: " << x1 << " | v1: " << func_wrapper.valueAt(x1) << endl;
+      //cout << "diff norm" << norm(x1 - x0) << endl;
+      //cout << "norm:" << norm(g0) << endl;
 
       // clean the sks and yks which are m iterations before
       if(niter >= memory){
@@ -162,7 +173,8 @@ namespace FuncOptimizer {
       ++niter;
     }
 
-    return paths;
-
+    result.converged = converged;
+    result.path = paths;
+    return result;
   }
 } // end namespace

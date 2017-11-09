@@ -1,45 +1,48 @@
-#include "direcUpdate.h"
-
 namespace mpi = boost::mpi;
 
 namespace DirectionUpdate {
 
   // steep descent update search direction
-  SearchDirection sd_update(const Gradient &g) {
+  template<typename T>
+  SearchDirection<T> sd_update(const Gradient<T>& g) {
     return -1.0 * g;
   }
 
   // Parallel steep descent
-  SearchDirection sd_update(const Gradient& g, const mpi::communicator& world){
+  template<typename T>
+  SearchDirection<T> sd_update(const Gradient<T>& g, const mpi::communicator& world){
     // dummpy arguments in worlds since steep descent doesn't require any
     // communications between process
     return -1.0 * g;
   }
 
   // conjugate update search direction in one iteration
-  SearchDirection cg_update(const Gradient &last_gradient, const SearchDirection &last_direction,
-                            const Gradient &this_gradient)
+  template<typename T>
+  SearchDirection<T> cg_update(const Gradient<T>& last_gradient, const SearchDirection<T>& last_direction,
+                               const Gradient<T>& this_gradient)
   {
     double beta = dot(this_gradient, this_gradient) / dot(last_gradient, last_gradient);
     return -this_gradient + beta * last_direction;
   }
 
   // Parallel conjugate gradient
-  SearchDirection cg_update(const Gradient &last_gradient, const SearchDirection &last_direction,
-                            const Gradient &this_gradient, const mpi::communicator& world)
+  template<typename T>
+  SearchDirection<T> cg_update(const Gradient<T>& last_gradient, const SearchDirection<T>& last_direction,
+                               const Gradient<T>& this_gradient, const mpi::communicator& world)
   {
     double beta = dot(this_gradient, this_gradient, world) / dot(last_gradient, last_gradient, world);
     return -this_gradient + beta * last_direction;
   }
 
   // L-BFGS update search direction
-  SearchDirection lbfgs_update(const vector<IterationPoint>& sks, const vector<Gradient>& yks,
-                               const Gradient &this_gradient)
+  template<typename T>
+  SearchDirection<T> lbfgs_update(const vector<IterationPoint<T>>& sks, const vector<Gradient<T>>& yks,
+                                  const Gradient<T>& this_gradient)
   {
     int m = sks.size();
 
     //cout << "this gradient: " << this_gradient << endl;
-    SearchDirection q(this_gradient.begin(), this_gradient.end());
+    SearchDirection<T> q(this_gradient.begin(), this_gradient.end());
     // temporary coeff in the calculation
     vector<double> rhos(m), alphas(m);
     // left
@@ -58,8 +61,8 @@ namespace DirectionUpdate {
 
     // middle
     // diagonal Hessian0
-    SearchDirection hess0(this_gradient.size(), 1.0);
-    SearchDirection r = hess0 * q;
+    SearchDirection<T> hess0(this_gradient.size(), 1.0);
+    SearchDirection<T> r = hess0 * q;
     //cout << "r norm: " << norm(r) << endl;
 
     // right
@@ -73,13 +76,14 @@ namespace DirectionUpdate {
   }
 
   // L-BFGS update search direction
-  SearchDirection lbfgs_update(const vector<IterationPoint>& sks, const vector<Gradient>& yks,
-                               const Gradient &this_gradient, const mpi::communicator& world)
+  template<typename T>
+  SearchDirection<T> lbfgs_update(const vector<IterationPoint<T>>& sks, const vector<Gradient<T>>& yks,
+                                  const Gradient<T>& this_gradient, const mpi::communicator& world)
   {
     int m = sks.size();
 
     //cout << "this gradient: " << this_gradient << endl;
-    SearchDirection q(this_gradient.begin(), this_gradient.end());
+    SearchDirection<T> q(this_gradient.begin(), this_gradient.end());
     // temporary coeff in the calculation
     vector<double> rhos(m), alphas(m);
     // left
@@ -98,8 +102,8 @@ namespace DirectionUpdate {
 
     // middle
     // start with diagonal Hessian0
-    SearchDirection hess0(this_gradient.size(), 1.0);
-    SearchDirection r = hess0 * q;
+    SearchDirection<T> hess0(this_gradient.size(), 1.0);
+    SearchDirection<T> r = hess0 * q;
     //cout << "r norm: " << norm(r) << endl;
 
     // right
