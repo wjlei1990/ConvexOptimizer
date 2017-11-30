@@ -24,12 +24,12 @@ class BFGS(Optimizer):
         converged = False
         niter = 0
         while(not converged and niter < max_iter):
-            print("-------------------------")
-            print("g0:", g0)
-            print("hess:")
-            print(hess0)
+            # print("-------------------------")
+            # print("g0:", g0)
+            # print("hess:")
+            # print(hess0)
             p0 = -np.dot(hess0, g0)
-            print("p0:", -p0)
+            # print("p0:", -p0)
             alpha, x1 = self.line_search(x0, p0)
 
             if(np.linalg.norm(g0) < threshold):
@@ -43,7 +43,7 @@ class BFGS(Optimizer):
             g1 = self.func_wrapper.gradientAt(x1)
             y0 = g1 - g0
             rho = 1 / np.dot(y0, s0)
-            print("rho:", rho)
+            # print("rho:", rho)
             m1 = (identity - rho * s0.reshape(ndim, 1) * y0.reshape(1, ndim))
             m2 = (identity - rho * y0.reshape(ndim, 1) * s0.reshape(1, ndim))
             m3 = rho * s0.reshape(ndim, 1) * s0.reshape(1, ndim)
@@ -72,7 +72,7 @@ class LBFGS(Optimizer):
         q = np.copy(gk)
 
         m = len(s_array)
-        print("Updating using last %d iterations..." % m)
+        #print("Updating using last %d iterations..." % m)
         rhos = np.zeros(m)
         alphas = np.zeros(m)
 

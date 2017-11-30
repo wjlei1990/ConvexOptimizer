@@ -4,6 +4,7 @@
 
 #include<vector>
 #include <boost/mpi.hpp>
+#include <boost/serialization/vector.hpp>
 #include "vec_utils.hpp"
 #include "gtest/gtest.h"
 #include "direcUpdate.h"
@@ -60,6 +61,11 @@ TEST(DirectionUpdate, SD_MPI) {
 
   vector<double> true_local_new_grad(new_grad.begin() + start, new_grad.begin() + end);
 
+  double residual = norm(local_new_grad - true_local_new_grad, world);
+  if(rank == 0){
+    ASSERT_DOUBLE_EQ(residual, 0.0);
+  }
+
   ASSERT_DOUBLE_EQ(norm(local_new_grad - true_local_new_grad), 0.0);
   world.barrier();
 }
@@ -91,6 +97,12 @@ TEST(DirectionUpdate, CG_MPI)
   vector<double> local_new_grad = DirectionUpdate::cg_update(local_grad1, local_direc1, local_grad2, world);
 
   vector<double> true_local_new_grad(new_grad.begin() + start, new_grad.begin() + end);
+
+  double residual = norm(local_new_grad - true_local_new_grad, world);
+  if(rank == 0){
+    ASSERT_DOUBLE_EQ(residual, 0.0);
+  }
+
   ASSERT_DOUBLE_EQ(norm(local_new_grad - true_local_new_grad), 0);
 
   world.barrier();
@@ -134,9 +146,35 @@ TEST(DirectionUpdate, LBFGS_MPI){
 
   vector<double> local_new_grad = DirectionUpdate::lbfgs_update(local_sks, local_yks, local_grad, world);
 
+  double residual = norm(local_new_grad - true_local_new_grad, world);
+  if(rank == 0){
+    ASSERT_DOUBLE_EQ(residual, 0.0);
+  }
   ASSERT_DOUBLE_EQ(norm(local_new_grad - true_local_new_grad), 0);
 
   world.barrier();
+}
+
+TEST(VecSerlization, Test){
+  mpi::communicator world;
+
+  int rank = world.rank();
+  int size = world.size();
+
+  vector<int> local_vec;
+  int local_size = 2;
+  for(int i=0; i<local_size; ++i){
+    local_vec.push_back(rank * local_size + i);
+  }
+
+  vector<int> global_vec;
+  mpi::all_gather(world, local_vec, local_size, global_vec);
+  if(rank == 0){
+    for(auto v: global_vec){
+      cout << v << endl;
+    }
+  }
+
 }
 
 int main(int argc, char **argv) {

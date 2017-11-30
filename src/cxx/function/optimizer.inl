@@ -109,7 +109,6 @@ namespace FuncOptimizer {
 
       //cout << "[" << niter << "] x: " << x0 << " | v: " << func_wrapper.valueAt(x0)
       //     << " | norm: " << norm(g1) << " | orth: " << orth << " | restart: " << restart << endl;
-
       g0 = g1;
       x0 = x1;
       ++niter;
