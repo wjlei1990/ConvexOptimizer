@@ -1,5 +1,5 @@
 # ConvexOptimizer
-C++ implementation of numerical optimizer for convex function in parallel environment.
+C++ implementation of numerical optimizer for convex function in parallel environment(model is too big to hold one machine but distributed on parallel system). 
 
 ** primitive version. Updates very soon...
 
