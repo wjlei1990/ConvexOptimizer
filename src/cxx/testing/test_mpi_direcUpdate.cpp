@@ -166,15 +166,6 @@ TEST(VecSerlization, Test){
   for(int i=0; i<local_size; ++i){
     local_vec.push_back(rank * local_size + i);
   }
-
-  vector<int> global_vec;
-  mpi::all_gather(world, local_vec, local_size, global_vec);
-  if(rank == 0){
-    for(auto v: global_vec){
-      cout << v << endl;
-    }
-  }
-
 }
 
 int main(int argc, char **argv) {
